@@ -8,7 +8,7 @@ Ollama chat client是基于ollama这个开源ai本地部署项目的一个衍生
 或命令行启动，提供了一个折中方案。
 
 
-制作：
+反馈点：
 
 
 bilbil未知之致
