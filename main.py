@@ -71,7 +71,7 @@ class OllamaChatGUI:
         refresh_btn.grid(row=3, column=0, padx=20, pady=10)
 
         # 清除对话按钮
-        clear_btn = ctk.CTkButton(
+        self.clear_btn = ctk.CTkButton(
             sidebar_frame,
             text="清除对话",
             fg_color="transparent",
@@ -79,7 +79,7 @@ class OllamaChatGUI:
             text_color=("gray10", "#DCE4EE"),
             command=self.clear_conversation
         )
-        clear_btn.grid(row=4, column=0, padx=20, pady=10)
+        self.clear_btn.grid(row=4, column=0, padx=20, pady=10)
 
         # 退出按钮
         exit_btn = ctk.CTkButton(
@@ -228,18 +228,31 @@ class OllamaChatGUI:
         # 发送到Ollama
         threading.Thread(target=self.get_ai_response, args=(message,), daemon=True).start()
 
-    def _set_sending_state(self, sending: bool):
+    def _update_connection_status(self, connected: bool, error_msg: str = ""):
+        """根据实际连接结果更新状态标签"""
+        if connected:
+            self.status_label.configure(text="状态: 已连接 ✅", text_color="lightgreen")
+        elif error_msg:
+            self.status_label.configure(text=f"状态: {error_msg}", text_color="red")
+        else:
+            self.status_label.configure(text="状态: 未连接 ❌", text_color="red")
+
+    def _set_sending_state(self, sending: bool, connected: bool = True, error_msg: str = ""):
         """设置发送状态，防止重复发送"""
         self._waiting_response = sending
         if sending:
             self.send_btn.configure(state="disabled", text="等待中...")
+            self.clear_btn.configure(state="disabled")
             self.status_label.configure(text="状态: AI思考中...", text_color="yellow")
         else:
             self.send_btn.configure(state="normal", text="发送")
-            self.status_label.configure(text="状态: 已连接 ✅", text_color="lightgreen")
+            self.clear_btn.configure(state="normal")
+            self._update_connection_status(connected, error_msg)
 
     def get_ai_response(self, message):
         """获取AI响应（使用 /api/chat 支持多轮对话）"""
+        connected = True
+        error_msg = ""
         try:
             # 将用户消息加入历史
             self.conversation_history.append({
@@ -247,10 +260,12 @@ class OllamaChatGUI:
                 "content": message
             })
 
-            # 使用 /api/chat 接口，自动携带完整对话历史
+            # 构建请求时对历史做快照，避免与主线程竞争
+            messages_snapshot = list(self.conversation_history)
+
             data = {
                 "model": self.current_model,
-                "messages": self.conversation_history,
+                "messages": messages_snapshot,
                 "stream": False
             }
 
@@ -272,17 +287,22 @@ class OllamaChatGUI:
 
                 self.add_message("assistant", "AI", ai_response)
             else:
-                # 请求失败，回滚用户消息
-                self.conversation_history.pop()
+                # 请求失败，安全回滚用户消息
+                if self.conversation_history and self.conversation_history[-1].get("role") == "user":
+                    self.conversation_history.pop()
                 self.add_message("system", "系统", f"错误: {response.status_code}")
+                connected = False
+                error_msg = f"请求错误 ({response.status_code})"
 
         except requests.RequestException as e:
-            # 网络异常，回滚用户消息
-            if self.conversation_history and self.conversation_history[-1]["role"] == "user":
+            # 网络异常，安全回滚用户消息
+            if self.conversation_history and self.conversation_history[-1].get("role") == "user":
                 self.conversation_history.pop()
             self.add_message("system", "系统", f"请求失败: {str(e)}")
+            connected = False
+            error_msg = "连接失败 ❌"
         finally:
-            self.window.after(0, self._set_sending_state, False)
+            self.window.after(0, self._set_sending_state, False, connected, error_msg)
 
     def add_message(self, sender, name, message):
         """添加消息到对话框"""
