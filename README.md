@@ -13,7 +13,7 @@ Ollama Chat Client 是一个基于本地 Ollama 服务的聊天客户端，支�
 - ✅ 配置文件管理
 - ✅ API Key 管理
 
-<<<<<<< HEAD
+
 ## 快速开始
 
 ### 1. 环境要求
@@ -27,7 +27,7 @@ Ollama Chat Client 是一个基于本地 Ollama 服务的聊天客户端，支�
 
 直接运行 `start.py` 启动脚本，它会自动检查环境并安装依赖：
 
-<<<<<<< HEAD
+
 ```bash
 python start.py
 ```
