@@ -13,7 +13,11 @@ Ollama Chat Client 是一个基于本地 Ollama 服务的聊天客户端，支�
 - ✅ 配置文件管理
 - ✅ API Key 管理
 
+<<<<<<< HEAD
 ## 快速开始
+=======
+反馈点：
+>>>>>>> 254039b1cc15304f7d3f956c9e593d56740d663d
 
 ### 1. 环境要求
 
@@ -26,6 +30,7 @@ Ollama Chat Client 是一个基于本地 Ollama 服务的聊天客户端，支�
 
 直接运行 `start.py` 启动脚本，它会自动检查环境并安装依赖：
 
+<<<<<<< HEAD
 ```bash
 python start.py
 ```
@@ -195,3 +200,12 @@ pyinstaller --onefile --windowed main.py
 ## 许可证
 
 本项目采用 MIT 许可证。
+=======
+目前ollama chat client功能并不是很稳定，请勿用于生产力环境。
+
+
+特别鸣谢：
+
+
+浅忆QanYi
+>>>>>>> 254039b1cc15304f7d3f956c9e593d56740d663d
