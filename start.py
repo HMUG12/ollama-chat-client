@@ -13,7 +13,10 @@ REQUIREMENTS = [
     "customtkinter>=5.2.0",
     "requests>=2.31.0",
     "flask>=3.1.2",
-    "psutil>=5.9.0"
+    "psutil>=5.9.0",
+    "pyttsx3>=2.90",
+    "websocket-client>=1.8.0",
+    "jieba>=0.42.1"
 ]
 
 # 主应用文件
